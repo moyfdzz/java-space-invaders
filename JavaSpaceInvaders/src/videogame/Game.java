@@ -24,7 +24,7 @@ import java.util.logging.Logger;
  *
  * @author moisesfernandez
  */
-public class Game implements Runnable {
+public class Game implements Runnable, Constants {
 
     private BufferStrategy bs;          // to have several buffers when	displaying
     private Graphics g;                 // to paint objects
@@ -34,10 +34,10 @@ public class Game implements Runnable {
     private final int height;		// height of the window
     private Thread thread;              // thread to create the	game
     private boolean running;            // to set the game
-    private Paddle paddle;              // variable for the paddle
+    private Player paddle;              // variable for the paddle
     private KeyManager keyManager;      // variable for the key manager
-    private LinkedList<Brick> bricks;   // linked list of the bricks of the game
-    private Ball ball;
+    private LinkedList<Alien> aliens;   // linked list of the bricks of the game
+    private Shot ball;
     private boolean gameOver;           // to determine if the game is over
     private boolean paused;             // to determine if the game is paused
     private boolean start;             // to determine if the game is paused
@@ -218,7 +218,7 @@ public class Game implements Runnable {
      * Returns the paddle
      * @return paddle
      */
-    public Paddle getpaddle() {
+    public Player getpaddle() {
         return this.paddle;
     }
 
@@ -226,7 +226,7 @@ public class Game implements Runnable {
      * Sets the paddle
      * @param paddle 
      */
-    public void setpaddle(Paddle paddle) {
+    public void setpaddle(Player paddle) {
         this.paddle = paddle;
     }
     
@@ -247,30 +247,17 @@ public class Game implements Runnable {
         Assets.init();
         //play the theme song of the game
         Assets.theme.play();
-        bricks = new LinkedList<Brick>();
-        ball = new Ball(getWidth()/2, getHeight()-150, 50, 50, this, 0, 0);
-        paddle = new Paddle(getWidth()/2, getHeight() - 100, 120, 30, this);
+        aliens = new LinkedList<Alien>();
         display.getJframe().addKeyListener(keyManager);
                 
-        for (int i = 0; i <= 10; i++) {
-            bricks.add(new Brick(100*i+25, 25, 70, 25, this));
-        }
-        for (int i = 0; i <= 9; i++) {
-            bricks.add(new Brick(100*i+75, 75, 70, 25, this));
-        }
-        for (int i = 0; i <= 10; i++) {
-            bricks.add(new Brick(100*i+25, 125, 70, 25, this));
-        }
-        for (int i = 0; i <= 9; i++) {
-            bricks.add(new Brick(100*i+75, 175, 70, 25, this));
+        for (int i = 0; i < 4; i++) {
+            for (int j = 0; j < 6; j++) {
+
+                Alien alien = new Alien( ALIEN_INIT_X + 18 * j, ALIEN_INIT_Y + 18 * i);
+                aliens.add(alien);
+            }
         }
         
-         for (int i = 0; i < bricks.size(); i++) {
-             for(int j = 0; j < bricks.get(i).getLives();j++)
-             {
-               paddle.setMaxScore(paddle.getMaxScore()+50);
-             }
-         }
 
     }
     
@@ -503,14 +490,14 @@ public class Game implements Runnable {
                 bY = Integer.parseInt(fileIn.readLine());
                 bVelX = Integer.parseInt(fileIn.readLine());
                 bVelY = Integer.parseInt(fileIn.readLine());
-                ball = new Ball(bX,bY,50,50,this,bVelX,bVelY);
+                ball = new Shot(bX,bY,50,50,this,bVelX,bVelY);
                 
               int pX,pY,pScore, pLives;
                 pX = Integer.parseInt(fileIn.readLine());
                 pY = Integer.parseInt(fileIn.readLine());
                 pLives = Integer.parseInt(fileIn.readLine());
                 pScore = Integer.parseInt(fileIn.readLine());
-                paddle = new Paddle(120,30,this,10, pLives, pScore, pX,pY);
+                paddle = new Player(120,30,this,10, pLives, pScore, pX,pY);
 
               fileIn.close();
     }

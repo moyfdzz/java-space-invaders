@@ -14,28 +14,20 @@ import videogame.ImageLoader;
  */
 public class Assets {
     public static BufferedImage background;
-    public static BufferedImage paddle;
-    public static BufferedImage enemy;
-    public static BufferedImage intro;
-    public static BufferedImage lives;
-    public static BufferedImage gameOver;
-    public static BufferedImage ball;
+    public static BufferedImage alien;
+    public static BufferedImage player;
+    public static BufferedImage shot;
+    public static BufferedImage bomb;
     public static SoundClip death;
+    public static SoundClip explosion;
+    public static SoundClip shoot;
     public static SoundClip theme;
-    public static BufferedImage brickSkins[];
     
     public static void init() {
         background = ImageLoader.loadImage("/images/background.jpeg");
-        paddle = ImageLoader.loadImage("/images/bar.png");
-        intro = ImageLoader.loadImage("/images/intro.jpg");
-        ball = ImageLoader.loadImage("/images/ball.png");
-        gameOver = ImageLoader.loadImage("/images/game_over.jpg");
+        alien = ImageLoader.loadImage("/images/alien.png");
         death = new SoundClip("/sounds/death.wav"); 
         theme = new SoundClip("/sounds/theme_song.wav");
-        brickSkins = new BufferedImage[3];
-        brickSkins[0] = ImageLoader.loadImage("/images/brick_hp_1.png");
-        brickSkins[1] = ImageLoader.loadImage("/images/brick_hp_2.png");
-        brickSkins[2] = ImageLoader.loadImage("/images/brick_hp_3.png");
     }
     
 }

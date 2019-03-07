@@ -16,6 +16,7 @@ public class Alien extends Item implements Constants {
     private int chance;                  // the lives of the player
     private Bomb bomb;
     private int direction;
+    private boolean dying;
     
 
     public Alien(int x, int y)
@@ -32,7 +33,20 @@ public class Alien extends Item implements Constants {
         this.bomb = new Bomb(x,y,BOMB_WIDTH,BOMB_HEIGHT);
         this.direction = direction;
     }
-    
+    /**
+     * To get if the alien is dying
+     * @return dying
+     */
+    public boolean isDying() {
+        return dying;
+    }
+    /**
+     * To set if the the alien is dying
+     * @param dying 
+     */
+    public void setDying(boolean dying) {
+        this.dying = dying;
+    }
     
     /**
      * To get the width of the window of the game

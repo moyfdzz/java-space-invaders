@@ -7,6 +7,7 @@ package videogame;
 
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.image.BufferStrategy;
 import java.io.BufferedReader;
@@ -34,15 +35,20 @@ public class Game implements Runnable, Constants {
     private final int height;		// height of the window
     private Thread thread;              // thread to create the	game
     private boolean running;            // to set the game
-    private Player paddle;              // variable for the paddle
     private KeyManager keyManager;      // variable for the key manager
-    private LinkedList<Alien> aliens;   // linked list of the bricks of the game
-    private Shot ball;
+    
+    
+    private Player player;              // variable for the paddle
+    private LinkedList<Alien> aliens;   // linked list of the aliens of the game
+    private Shot shot;
+    
+    
     private boolean gameOver;           // to determine if the game is over
     private boolean paused;             // to determine if the game is paused
     private boolean start;             // to determine if the game is paused
-    private String lastSave;    //Nombre del archivo.
         
+    private String lastSave;    //Nombre del archivo.
+    private String message;    //Nombre del archivo.
         
     /**
      * To create game with title, width, height and status of running
@@ -60,8 +66,17 @@ public class Game implements Runnable, Constants {
         this.paused = false;
         this.start = false;
         this.lastSave = "lastSave.txt";
+        this.message = "";
     }
 
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
+    
     /**
      * Returns a boolean value to know whether the game is paused or not
      * @return paused
@@ -242,17 +257,19 @@ public class Game implements Runnable, Constants {
      * initializing	the	display	window	of	the	game
      */
     private void init() {
-        display = new Display(title, width, height);
+        setDisplay(new Display(getTitle(), getWidth(), getHeight())) ;
         
         Assets.init();
         //play the theme song of the game
+        
         Assets.theme.play();
         aliens = new LinkedList<Alien>();
-        display.getJframe().addKeyListener(keyManager);
+        
+        getDisplay().getJframe().addKeyListener(getKeyManager());
                 
+        
         for (int i = 0; i < 4; i++) {
             for (int j = 0; j < 6; j++) {
-
                 Alien alien = new Alien( ALIEN_INIT_X + 18 * j, ALIEN_INIT_Y + 18 * i);
                 aliens.add(alien);
             }
@@ -272,10 +289,8 @@ public class Game implements Runnable, Constants {
             setPaused(!isPaused());
             getKeyManager().setP(false);
         }
-        if(getKeyManager().isSPACE() == true && !isStart()){
+        if(getKeyManager().isSPACE() == true){
            setStart(true);
-           ball.setVelX(5);
-           ball.setVelY(-5);
            getKeyManager().setSPACE(false);
         }
         
@@ -289,49 +304,33 @@ public class Game implements Runnable, Constants {
             loadGame();
             getKeyManager().setC(false);
         }
-        
-        if (paddle.getLives() == 0|| paddle.getScore() == paddle.getMaxScore()) {
+         
+        //GameOver
+        if (player.isDying()) {
+            setMessage("Game lost!");
             setGameOver(true);
             Assets.theme.stop();
         }
         
+        if(player.getDeaths() == NUMBER_OF_ALIENS_TO_DESTROY)
+        {
+            setMessage("Game won!");
+            setGameOver(true);   
+        }
+        //running
         if(!isGameOver() && !isPaused()){
-
-            if (ball.intersecta(paddle)) {
-                ball.setVelY(-ball.getVelY());                
-            }
-            
-            if(ball.isBottom())
-            {
-                paddle.setLives(paddle.getLives()-1);
-                setStart(false);
-                ball.setBottom(false);
-            }
-            if(!isStart())
-            {
-                ball.setVelX(0);
-                ball.setVelY(0);
-                ball.setX(paddle.getX()+25);
-                ball.setY(paddle.getY()-75);
-            }
     
-            for (int i = 0; i < bricks.size(); i++) {
-                if (ball.intersecta(bricks.get(i))) {
-                    ball.setVelY(-ball.getVelY());
-                    bricks.get(i).setLives(bricks.get(i).getLives() - 1);
-                    paddle.setScore(paddle.getScore()+50);
-                }
-
-                if(bricks.get(i).getLives() == 0) {
-                    bricks.remove(bricks.get(i));
+            for (int i = 0; i < aliens.size(); i++) {
+                
+                if(aliens.get(i).isDying()) {
+                    aliens.remove(aliens.get(i));
                 }
                 else {
-                    bricks.get(i).tick();
+                    aliens.get(i).tick();
                 }
             }
-
-            ball.tick();
-            paddle.tick();
+            shot.tick();
+            player.tick();
         }
 
         if(isGameOver() && getKeyManager().isR() == true) {
@@ -355,34 +354,41 @@ public class Game implements Runnable, Constants {
         } else {
             
             g = bs.getDrawGraphics();
-            g.drawImage(Assets.background, 0, 0, getWidth(), getHeight(), null);
-            
+            g.drawLine(0, GROUND, BOARD_WIDTH, GROUND);
             g.setColor(Color.WHITE);
             
             
             if(!isGameOver()) {
                 
-                paddle.render(g);
-                ball.render(g);
-                for (int i = 0; i < bricks.size(); i++) {
-                        bricks.get(i).render(g);
+                player.render(g);
+                shot.render(g);
+                for (int i = 0; i < aliens.size(); i++) {
+                        aliens.get(i).render(g);
+                        aliens.get(i).getBomb().render(g);
                 }
-                g.setFont(new Font("Serif", Font.BOLD, 15));
-                g.drawString( "Score : " + paddle.getScore(), getWidth() - 100, getHeight());
-                g.drawString( "Lives : " + paddle.getLives(), 10, getHeight());
+
             }
             if(isPaused())
             {
                 g.setFont(new Font("Serif", Font.BOLD, 120));
                 g.drawString("Paused", getWidth()/2-200, getHeight()/2);
-                g.setFont(new Font("Serif", Font.BOLD, 60));
-                g.drawString("Current Score: " + paddle.getScore(), getWidth()/2-200, getHeight()/2+200);
+            
             }
             if(isGameOver())
             {
-                g.setFont(new Font("Serif", Font.BOLD, 120));
-                g.drawString("Game", getWidth()/2-100, getHeight()/2-100);
-                g.drawString("Over", getWidth()/2+50, getHeight()/2+50);
+                 g.setColor(Color.black);
+                 g.fillRect(0, 0, BOARD_WIDTH, BOARD_HEIGHT);
+                 g.setColor(new Color(0, 32, 48));
+                 g.fillRect(50, BOARD_WIDTH / 2 - 30, BOARD_WIDTH - 100, 50);
+                 g.setColor(Color.white);
+                 g.drawRect(50, BOARD_WIDTH / 2 - 30, BOARD_WIDTH - 100, 50);
+                 Font small = new Font("Helvetica", Font.BOLD, 14);
+                 FontMetrics metr = g.getFontMetrics(small);
+                 g.setColor(Color.white);
+                 g.setFont(small);
+                 g.drawString(message, (BOARD_WIDTH - metr.stringWidth(message)) / 2,
+                BOARD_WIDTH / 2);
+
             }
             bs.show();
             g.dispose();

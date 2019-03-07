@@ -14,6 +14,8 @@ public class Player extends Item implements Constants {
     private Game game;
     private int velocity;               // variable for the velocity of the player
     private int deaths;               // variable for the velocity of the player
+    private boolean dying;
+    
     /**
      * Constructor to initialize an object of the type Player with its attributes
      * @param width
@@ -28,6 +30,7 @@ public class Player extends Item implements Constants {
         this.game = game;
         this.velocity = velocity;
         this.deaths = 0;
+        this.dying = false;
     }
 
     public Player(int width, int height, Game game) {
@@ -35,10 +38,16 @@ public class Player extends Item implements Constants {
         this.width = width;
         this.height = height;
         this.game = game;
-        
+        this.dying = false;    
     }
-    
-    
+
+    public boolean isDying() {
+        return dying;
+    }
+
+    public void setDying(boolean dying) {
+        this.dying = dying;
+    }
     
     /**
      * To get the width of the window of the game

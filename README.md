@@ -1,2 +1,2 @@
 # java-space-invaders
-Partial Exam #2
+Space Invaders made in Java

@@ -250,6 +250,7 @@ public class Game implements Runnable, Constants {
         
         aliens = new Aliens();
         player =  new Player(START_X, START_Y,PLAYER_WIDTH,PLAYER_HEIGHT, this, 2);
+        shot = new Shot(0,0,SHOT_WIDTH,SHOT_HEIGHT, this,false);
         
         getDisplay().getJframe().addKeyListener(getKeyManager());
     }
@@ -259,14 +260,21 @@ public class Game implements Runnable, Constants {
     }
     
     private void tick() throws IOException {
+        
         keyManager.tick();
         
         if(getKeyManager().isP() == true) {
+            setMessage("Paused!");
             setPaused(!isPaused());
             getKeyManager().setP(false);
         }
         if(getKeyManager().isSPACE() == true){
-           setStart(true);
+            
+           if(!shot.isCreated())
+           {
+               shot = new Shot(player.getX(),player.getY(),SHOT_HEIGHT,SHOT_WIDTH,this,true);
+           }
+
            getKeyManager().setSPACE(false);
         }
         
@@ -282,25 +290,41 @@ public class Game implements Runnable, Constants {
         }
          
         //GameOver
-        if (player.isDying()) {
+        if (aliens.intersectaBomb(player)) {
             setMessage("Game lost!");
             setGameOver(true);
             //Assets.theme.stop();
         }
+        
+        if (aliens.intersectaShot(shot)) {
+            shot.setCreated(false);
+            shot.setX(player.getX());
+            shot.setY(player.getY());
+            player.setDeaths(player.getDeaths()+1);
+            //Assets.theme.stop();
+        }
+        
+        if (aliens.reachesBottom()) {
+                    setGameOver(true);
+                    message = "Invasion!";
+        }
+
         
         if(player.getDeaths() == NUMBER_OF_ALIENS_TO_DESTROY)
         {
             setMessage("Game won!");
             setGameOver(true);   
         }
+        
+        
         //running
         if(!isGameOver() && !isPaused()){
     
             aliens.tick();
-            //shot.tick();
+            shot.tick();
             player.tick();
         }
-
+        
         if(isGameOver() && getKeyManager().isR() == true) {
             setGameOver(false);
             restartGame();
@@ -334,14 +358,25 @@ public class Game implements Runnable, Constants {
             if(!isGameOver()) {
                 
                 player.render(g);
-               // shot.render(g);
+                shot.render(g);
                 aliens.render(g);
 
             }
+          
             if(isPaused())
             {
-                g.setFont(new Font("Serif", Font.BOLD, 120));
-                g.drawString("Paused", getWidth()/2-200, getHeight()/2);
+                g.setColor(Color.black);
+                 g.fillRect(0, 0, BOARD_WIDTH, BOARD_HEIGHT);
+                 g.setColor(new Color(0, 32, 48));
+                 g.fillRect(50, BOARD_WIDTH / 2 - 30, BOARD_WIDTH - 100, 50);
+                 g.setColor(Color.white);
+                 g.drawRect(50, BOARD_WIDTH / 2 - 30, BOARD_WIDTH - 100, 50);
+                 Font small = new Font("Helvetica", Font.BOLD, 14);
+                 FontMetrics metr = display.getJframe().getFontMetrics(small);
+                 g.setColor(Color.white);
+                 g.setFont(small);
+                 g.drawString(message, (BOARD_WIDTH - metr.stringWidth(message)) / 2,
+                BOARD_WIDTH / 2);
             
             }
             if(isGameOver())
@@ -413,7 +448,7 @@ public class Game implements Runnable, Constants {
     private void saveGame() throws IOException {
                                                           
         PrintWriter fileOut = new PrintWriter(new FileWriter(lastSave));
-        fileOut.println("nOTHIN");
+        fileOut.println("Nothing");
         
         fileOut.close();
                 
@@ -422,7 +457,6 @@ public class Game implements Runnable, Constants {
     
     private void loadGame() throws IOException
     {
-        setStart(false);
         BufferedReader fileIn;
               try {
                       fileIn = new BufferedReader(new FileReader(lastSave));
@@ -435,27 +469,8 @@ public class Game implements Runnable, Constants {
               }
               String dato = fileIn.readLine();
               int num = Integer.parseInt(dato);
-              int AlienX, AlienY,AlienLives;
               
-              for(int i = 0; i < num ; i++)   
-              {
-                         AlienX = Integer.parseInt(fileIn.readLine());
-                         AlienY = Integer.parseInt(fileIn.readLine());
-                         AlienLives = Integer.parseInt(fileIn.readLine());
-                         
-              }
-              int bX,bY,bVelX, bVelY;
-                bX = Integer.parseInt(fileIn.readLine());
-                bY = Integer.parseInt(fileIn.readLine());
-                bVelX = Integer.parseInt(fileIn.readLine());
-                bVelY = Integer.parseInt(fileIn.readLine());
-                
-              int pX,pY,pScore, pLives;
-                pX = Integer.parseInt(fileIn.readLine());
-                pY = Integer.parseInt(fileIn.readLine());
-                pLives = Integer.parseInt(fileIn.readLine());
-                pScore = Integer.parseInt(fileIn.readLine());
-
+              
               fileIn.close();
     }
 

@@ -30,7 +30,6 @@ public class Aliens implements Constants {
                 aliens.add(alien);
             }
         }
-
     }
 
     /**
@@ -52,41 +51,78 @@ public class Aliens implements Constants {
     public void setDirection(int direction) {
         this.direction = direction;
     }
-    
-        public void tick() {
+
+    public void tick() {
 
         for (int i = 0; i < aliens.size(); i++) {
-    
-             if (aliens.get(aliens.size()-1).getX() >= BOARD_WIDTH - BORDER_RIGHT && getDirection() != -1) {
-                  setDirection(-1);
-                  
-                  Iterator i1 = aliens.iterator();
+
+             int x = aliens.get(i).getX();
+            if (x >= BOARD_WIDTH - BORDER_RIGHT && getDirection() != -1) {
+                setDirection(-1);
+                Iterator i1 = aliens.iterator();
 
                 while (i1.hasNext()) {
 
                     Alien a2 = (Alien) i1.next();
                     a2.setY(a2.getY() + GO_DOWN);
                 }
+            }
 
-             }
-             
-             if (aliens.get(0).getX() <= BORDER_LEFT && getDirection() != 1) {
-                   setDirection(1);
-                    Iterator i2 = aliens.iterator();
+            if (x <= BORDER_LEFT && getDirection() != 1) {
+                setDirection(1);
+                Iterator i2 = aliens.iterator();
 
                 while (i2.hasNext()) {
                     Alien a = (Alien) i2.next();
                     a.setY(a.getY() + GO_DOWN);
                 }
-               }
+            }
         }
-        
+
         for (int i = 0; i < aliens.size(); i++) {
-            
-            aliens.get(i).tick();
+                aliens.get(i).tick();
         }
-  
+
     }
+    
+    public boolean intersectaBomb(Player obj) {
+            
+            for(int i = 0; i < aliens.size(); i++)
+            {
+                if(aliens.get(i).getBomb().intersecta(obj))
+                    return true;
+            }
+            
+            return false;
+        }
+    
+        public boolean intersectaShot(Shot obj) {
+            
+            for(int i = 0; i < aliens.size(); i++)
+            {
+                if(aliens.get(i).intersectaShot(obj) && !aliens.get(i).isDying())
+                {
+                 aliens.get(i).setDying(true);
+                 return true;
+                }
+                    
+            }
+            
+            return false;
+        }
+        public boolean reachesBottom() {
+            
+            for(int i = 0; i < aliens.size(); i++)
+            {
+                if(aliens.get(i).getY() > GROUND - ALIEN_HEIGHT && !aliens.get(i).isDying())
+                    return true;
+                    
+            }
+            
+            return false;
+        }
+    
+    
 
     private class Alien extends Item {
 
@@ -103,9 +139,9 @@ public class Aliens implements Constants {
             this.height = ALIEN_HEIGHT;
             this.game = game;
             this.velocity = 1;
-            this.bomb = new Bomb(x, y, BOMB_WIDTH, BOMB_HEIGHT,BOMB_SPEED);
+            this.bomb = new Bomb(x, y, BOMB_WIDTH, BOMB_HEIGHT);
+            this.dying = false;
         }
-
 
         /**
          * To get if the alien is dying
@@ -202,13 +238,31 @@ public class Aliens implements Constants {
          * @param obj
          * @return Rectangle
          */
-        public boolean intersecta(Shot obj) {
+        public boolean intersectaShot(Shot obj) {
             return getPerimetro().intersects(obj.getPerimetro());
         }
+        
+
 
         @Override
         public void tick() {
+            if(!isDying())
+            {
             setX(getX() + getDirection());
+
+            if (!bomb.isCreated()) {
+
+                int chance = (int) (Math.random() * 15);
+
+                if (chance == CHANCE) {
+                    bomb.setCreated(true);
+                    bomb.setX(getX());
+                    bomb.setY(getY());
+                }
+            }
+            bomb.tick();
+            }
+            
         }
 
         /**
@@ -218,23 +272,27 @@ public class Aliens implements Constants {
          */
         @Override
         public void render(Graphics g) {
+            if(!isDying())
+            {
             g.drawImage(Assets.alien, getX(), getY(), getWidth(), getHeight(), null);
+            bomb.render(g);
+            }
         }
 
         private class Bomb extends Item {
 
             private int width;
             private int height;
-            private boolean destroyed;
+            private boolean created;
             private int speed;
             private boolean dropped;
 
-            public Bomb(int x, int y, int width, int height, int speed) {
+            public Bomb(int x, int y, int width, int height) {
                 super(x, y);
                 this.width = width;
                 this.height = height;
-                this.destroyed = true;
-                this.speed = speed;
+                this.created = false;
+                this.speed = BOMB_SPEED;
                 this.dropped = false;
             }
 
@@ -245,7 +303,7 @@ public class Aliens implements Constants {
             public void setDropped(boolean dropped) {
                 this.dropped = dropped;
             }
-            
+
             public int getSpeed() {
                 return speed;
             }
@@ -253,7 +311,7 @@ public class Aliens implements Constants {
             public void setSpeed(int speed) {
                 this.speed = speed;
             }
-            
+
             public int getWidth() {
                 return width;
             }
@@ -270,12 +328,12 @@ public class Aliens implements Constants {
                 this.height = height;
             }
 
-            public boolean isDestroyed() {
-                return destroyed;
+            public boolean isCreated() {
+                return created;
             }
 
-            public void setDestroyed(boolean destroyed) {
-                this.destroyed = destroyed;
+            public void setCreated(boolean created) {
+                this.created = created;
             }
 
             /**
@@ -286,6 +344,7 @@ public class Aliens implements Constants {
             public Rectangle getPerimetro() {
                 return new Rectangle(getX(), getY(), getWidth(), getHeight());
             }
+
             /**
              * To determine if the object is intersecting with the paddle
              *
@@ -298,18 +357,25 @@ public class Aliens implements Constants {
 
             @Override
             public void tick() {
-                setY(getY() + getSpeed());
-                
-                if (getY() >= GROUND - BOMB_HEIGHT) {
-                    setDropped(false);
+
+                if (isCreated()) {
+                    
+                    setY(getY() + BOMB_SPEED);
+                        
+                    if (getY() >= GROUND - BOMB_HEIGHT) {
+                        
+                        setCreated(false);
+                    }
                 }
-                
+
             }
 
             @Override
             public void render(Graphics g) {
-                if(isDropped())
-                g.drawImage(Assets.bomb, getX(), getY(), getWidth(), getHeight(), null);
+
+                if (isCreated()) {
+                    g.drawImage(Assets.bomb, getX(), getY(), getWidth(), getHeight(), null);
+                }
             }
 
         }

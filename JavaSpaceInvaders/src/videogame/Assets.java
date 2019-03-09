@@ -25,7 +25,7 @@ public class Assets {
     public static void init() {
         alien = ImageLoader.loadImage("/images/alien.png");
         player = ImageLoader.loadImage("/images/spaceship.png");
-        bomb = ImageLoader.loadImage("/images/ball.png");
+        bomb = ImageLoader.loadImage("/images/shot.png");
         shot = ImageLoader.loadImage("/images/shot.png");
         death = new SoundClip("/sounds/death.wav"); 
         theme = new SoundClip("/sounds/theme_song.wav");

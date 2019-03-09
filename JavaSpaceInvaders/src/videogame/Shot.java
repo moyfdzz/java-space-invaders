@@ -11,8 +11,8 @@ public class Shot extends Item implements Constants {
     
     private int width;                  // the width of the player
     private int height;                 // the height of the player
+    private boolean created;                 // the height of the player
     private Game game;
-    private int velocity;               // variable for the velocity of the player
     /**
      * Constructor to initialize an object of the type Player with its attributes
      * @param width
@@ -20,21 +20,23 @@ public class Shot extends Item implements Constants {
      * @param game
      */
 
-    public Shot(int x, int y,int width, int height, Game game, int velocity) {
+    public Shot(int x, int y,int width, int height, Game game, boolean created) {
         super(x + H_SPACE , y - V_SPACE);
         this.width = width;
         this.height = height;
         this.game = game;
-        this.velocity = velocity;
-    }
-
-    public Shot(int x,int y, int width, int height, Game game) {
-        super(x + H_SPACE , y - V_SPACE);
-        this.width = width;
-        this.height = height;
-        this.game = game;
+        this.created = created;
         
     }
+
+    public boolean isCreated() {
+        return created;
+    }
+
+    public void setCreated(boolean created) {
+        this.created = created;
+    }
+    
     /**
      * To get the width of the window of the game
      * @return an <code>int</code> value with the width
@@ -52,14 +54,6 @@ public class Shot extends Item implements Constants {
     }
 
     /**
-     * To get the velocity of the player
-     * @return velocity
-     */
-    public int getVelocity() {
-        return velocity;
-    }
-    
-    /**
      * To set the width of the window of the game
      * @param width 
      */
@@ -75,14 +69,6 @@ public class Shot extends Item implements Constants {
         this.height = height;
     }
 
-    /**
-     * To set the velocity of the player
-     * @param velocity 
-     */
-    public void setVelocity(int velocity) {
-        this.velocity = velocity;
-    }
-
 
     /**
      * To get the perimeter of the rectangle of the player's image
@@ -92,17 +78,16 @@ public class Shot extends Item implements Constants {
         return new Rectangle(getX(), getY(), getWidth(), getHeight());
     }
 
-    /**
-     * To determine if the object is intersecting with another object
-     * @param obj
-     * @return Rectangle
-     */
-    public boolean intersecta(Shot obj) {
-        return getPerimetro().intersects(obj.getPerimetro());
-    }
     
     @Override
-    public void tick() {    
+    public void tick() {   
+        if(isCreated())
+            setY(getY() - SHOT_SPEED);
+        
+        if(getY() <= 0)
+        {
+            setCreated(false);
+        }
 
     }
     /**
@@ -111,7 +96,8 @@ public class Shot extends Item implements Constants {
      */
     @Override
     public void render(Graphics g) {
-        g.drawImage(Assets.shot, getX(), getY(), getWidth(), getHeight(), null);
+            if(isCreated())
+            g.drawImage(Assets.shot, getX(), getY(), getWidth(), getHeight(), null);
     }
 
 }

@@ -13,7 +13,6 @@ import videogame.ImageLoader;
  * @author moisesfernandez
  */
 public class Assets {
-    public static BufferedImage background;
     public static BufferedImage alien;
     public static BufferedImage player;
     public static BufferedImage shot;
@@ -24,8 +23,10 @@ public class Assets {
     public static SoundClip theme;
     
     public static void init() {
-        background = ImageLoader.loadImage("/images/background.jpeg");
         alien = ImageLoader.loadImage("/images/alien.png");
+        player = ImageLoader.loadImage("/images/spaceship.png");
+        bomb = ImageLoader.loadImage("/images/ball.png");
+        shot = ImageLoader.loadImage("/images/shot.png");
         death = new SoundClip("/sounds/death.wav"); 
         theme = new SoundClip("/sounds/theme_song.wav");
     }

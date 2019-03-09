@@ -16,6 +16,7 @@ public interface Constants {
     public static final int GROUND = 290;
     public static final int BOMB_HEIGHT = 5;
     public static final int BOMB_WIDTH = 5;
+    public static final int BOMB_SPEED = 1;
     public static final int ALIEN_HEIGHT = 12;
     public static final int ALIEN_WIDTH = 12;
     public static final int BORDER_RIGHT = 30;

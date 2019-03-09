@@ -134,10 +134,12 @@ public class Player extends Item implements Constants {
             setX(getX() + getVelocity());
         }
         
-        if (getX() >= game.getWidth() -2 * getWidth()) { // right side of the player
-            setX(game.getWidth() -  2 * getWidth());
-        } else if (getX() <= 0) { // // left side of the player
-            setX(0);
+        if (getX() <= 2) {// left side of the player
+            setX(2);
+        }
+        
+        if (getX() >= game.getWidth() - getWidth()) { // right side of the player
+            setX(game.getWidth() -   getWidth());
         }
     }
     /**

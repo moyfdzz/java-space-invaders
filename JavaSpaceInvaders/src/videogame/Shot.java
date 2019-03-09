@@ -21,7 +21,7 @@ public class Shot extends Item implements Constants {
      */
 
     public Shot(int x, int y,int width, int height, Game game, int velocity) {
-        super(x, y);
+        super(x + H_SPACE , y - V_SPACE);
         this.width = width;
         this.height = height;
         this.game = game;
@@ -103,21 +103,7 @@ public class Shot extends Item implements Constants {
     
     @Override
     public void tick() {    
-        // The player moves to the left
-        if (game.getKeyManager().isLEFT()) {
-            setX(getX() - getVelocity());
-        }
-        
-        // The player moves to the right
-        if (game.getKeyManager().isRIGHT()) {
-            setX(getX() + getVelocity());
-        }
-        
-        if (getX() >= game.getWidth() -2 * getWidth()) { // right side of the player
-            setX(game.getWidth() -  2 * getWidth());
-        } else if (getX() <= 0) { // // left side of the player
-            setX(0);
-        }
+
     }
     /**
      * To render the image of the player

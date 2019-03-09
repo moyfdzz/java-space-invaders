@@ -17,7 +17,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -39,7 +39,7 @@ public class Game implements Runnable, Constants {
     
     
     private Player player;              // variable for the paddle
-    private LinkedList<Alien> aliens;   // linked list of the aliens of the game
+    private Aliens aliens;   // linked list of the aliens of the game
     private Shot shot;
     
     
@@ -230,22 +230,6 @@ public class Game implements Runnable, Constants {
     }
 
     /**
-     * Returns the paddle
-     * @return paddle
-     */
-    public Player getpaddle() {
-        return this.paddle;
-    }
-
-    /**
-     * Sets the paddle
-     * @param paddle 
-     */
-    public void setpaddle(Player paddle) {
-        this.paddle = paddle;
-    }
-    
-    /**
      * Sets the key manager
      * @param keyManager 
      */
@@ -262,20 +246,12 @@ public class Game implements Runnable, Constants {
         Assets.init();
         //play the theme song of the game
         
-        Assets.theme.play();
-        aliens = new LinkedList<Alien>();
+        //Assets.theme.play();
+        
+        aliens = new Aliens();
+        player =  new Player(START_X, START_Y,PLAYER_WIDTH,PLAYER_HEIGHT, this, 2);
         
         getDisplay().getJframe().addKeyListener(getKeyManager());
-                
-        
-        for (int i = 0; i < 4; i++) {
-            for (int j = 0; j < 6; j++) {
-                Alien alien = new Alien( ALIEN_INIT_X + 18 * j, ALIEN_INIT_Y + 18 * i);
-                aliens.add(alien);
-            }
-        }
-        
-
     }
     
     public KeyManager getKeyManager() {
@@ -309,7 +285,7 @@ public class Game implements Runnable, Constants {
         if (player.isDying()) {
             setMessage("Game lost!");
             setGameOver(true);
-            Assets.theme.stop();
+            //Assets.theme.stop();
         }
         
         if(player.getDeaths() == NUMBER_OF_ALIENS_TO_DESTROY)
@@ -320,16 +296,8 @@ public class Game implements Runnable, Constants {
         //running
         if(!isGameOver() && !isPaused()){
     
-            for (int i = 0; i < aliens.size(); i++) {
-                
-                if(aliens.get(i).isDying()) {
-                    aliens.remove(aliens.get(i));
-                }
-                else {
-                    aliens.get(i).tick();
-                }
-            }
-            shot.tick();
+            aliens.tick();
+            //shot.tick();
             player.tick();
         }
 
@@ -354,18 +322,20 @@ public class Game implements Runnable, Constants {
         } else {
             
             g = bs.getDrawGraphics();
+            g.clearRect(0, 0, width, height);
+            
+            g.setColor(Color.BLACK);
+            g.fillRect(0, 0, width, height);
+            
+            g.setColor(Color.GREEN);
             g.drawLine(0, GROUND, BOARD_WIDTH, GROUND);
-            g.setColor(Color.WHITE);
             
             
             if(!isGameOver()) {
                 
                 player.render(g);
-                shot.render(g);
-                for (int i = 0; i < aliens.size(); i++) {
-                        aliens.get(i).render(g);
-                        aliens.get(i).getBomb().render(g);
-                }
+               // shot.render(g);
+                aliens.render(g);
 
             }
             if(isPaused())
@@ -383,7 +353,7 @@ public class Game implements Runnable, Constants {
                  g.setColor(Color.white);
                  g.drawRect(50, BOARD_WIDTH / 2 - 30, BOARD_WIDTH - 100, 50);
                  Font small = new Font("Helvetica", Font.BOLD, 14);
-                 FontMetrics metr = g.getFontMetrics(small);
+                 FontMetrics metr = display.getJframe().getFontMetrics(small);
                  g.setColor(Color.white);
                  g.setFont(small);
                  g.drawString(message, (BOARD_WIDTH - metr.stringWidth(message)) / 2,
@@ -418,7 +388,7 @@ public class Game implements Runnable, Constants {
     @Override
     public void run() {
         init();
-        int fps = 30;
+        int fps = 60;
         double timeTick = 1000000000 / fps;
         double delta = 0;
         long now;
@@ -440,26 +410,11 @@ public class Game implements Runnable, Constants {
         }
         stop();
     }
-
     private void saveGame() throws IOException {
                                                           
         PrintWriter fileOut = new PrintWriter(new FileWriter(lastSave));
-        fileOut.println(bricks.size());
-        for (int i = 0; i < bricks.size(); i++) {
-            fileOut.println(bricks.get(i).getX());
-            fileOut.println(bricks.get(i).getY());
-            fileOut.println(bricks.get(i).getLives());
-        }
-        fileOut.println(ball.getX());
-        fileOut.println(ball.getY());
-        fileOut.println(ball.getVelX());
-        fileOut.println(ball.getVelY());
+        fileOut.println("nOTHIN");
         
-        fileOut.println(paddle.getX());
-        fileOut.println(paddle.getY());
-        fileOut.println(paddle.getLives());
-        fileOut.println(paddle.getScore());
-       
         fileOut.close();
                 
     }
@@ -468,7 +423,6 @@ public class Game implements Runnable, Constants {
     private void loadGame() throws IOException
     {
         setStart(false);
-        bricks.clear();
         BufferedReader fileIn;
               try {
                       fileIn = new BufferedReader(new FileReader(lastSave));
@@ -481,55 +435,33 @@ public class Game implements Runnable, Constants {
               }
               String dato = fileIn.readLine();
               int num = Integer.parseInt(dato);
-              int brickX, brickY,brickLives;
+              int AlienX, AlienY,AlienLives;
               
               for(int i = 0; i < num ; i++)   
               {
-                         brickX = Integer.parseInt(fileIn.readLine());
-                         brickY = Integer.parseInt(fileIn.readLine());
-                         brickLives = Integer.parseInt(fileIn.readLine());
+                         AlienX = Integer.parseInt(fileIn.readLine());
+                         AlienY = Integer.parseInt(fileIn.readLine());
+                         AlienLives = Integer.parseInt(fileIn.readLine());
                          
-                    bricks.add(new Brick(brickX,brickY,70,25,brickLives, this));
               }
               int bX,bY,bVelX, bVelY;
                 bX = Integer.parseInt(fileIn.readLine());
                 bY = Integer.parseInt(fileIn.readLine());
                 bVelX = Integer.parseInt(fileIn.readLine());
                 bVelY = Integer.parseInt(fileIn.readLine());
-                ball = new Shot(bX,bY,50,50,this,bVelX,bVelY);
                 
               int pX,pY,pScore, pLives;
                 pX = Integer.parseInt(fileIn.readLine());
                 pY = Integer.parseInt(fileIn.readLine());
                 pLives = Integer.parseInt(fileIn.readLine());
                 pScore = Integer.parseInt(fileIn.readLine());
-                paddle = new Player(120,30,this,10, pLives, pScore, pX,pY);
 
               fileIn.close();
     }
 
     private void restartGame() {
-       setStart(false);
-       paddle.setScore(0);
-       paddle.setLives(3);
-       paddle.setX(getWidth()/2);
-       paddle.setY(getHeight() - 100);
-       ball.setX(this.getWidth()/2);
-       ball.setY(this.getHeight()/2-50);
-       for (int i = 0; i <= 10; i++) {
-            bricks.add(new Brick(100*i+25, 25, 70, 25, this));
-        }
-        for (int i = 0; i <= 9; i++) {
-            bricks.add(new Brick(100*i+75, 75, 70, 25, this));
-        }
-        for (int i = 0; i <= 10; i++) {
-            bricks.add(new Brick(100*i+25, 125, 70, 25, this));
-        }
-        for (int i = 0; i <= 9; i++) {
-            bricks.add(new Brick(100*i+75, 175, 70, 25, this));
-        }
+
     }
-   
 
 }
 

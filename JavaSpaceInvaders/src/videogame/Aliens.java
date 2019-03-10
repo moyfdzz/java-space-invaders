@@ -465,8 +465,11 @@ public class Aliens implements Constants {
                     if (getY() >= GROUND - BOMB_HEIGHT) {
                         
                         setCreated(false);
+                        setX(0);
+                        setY(0);
                     }
                 }
+               
                 
 
             }

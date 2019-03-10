@@ -250,7 +250,7 @@ public class Game implements Runnable, Constants {
         
         aliens = new Aliens();
         player =  new Player(START_X, START_Y,PLAYER_WIDTH,PLAYER_HEIGHT, this, 2);
-        shot = new Shot(0,0,SHOT_WIDTH,SHOT_HEIGHT, this,false);
+        shot = new Shot(0,GROUND,SHOT_WIDTH,SHOT_HEIGHT, this,false);
         
         getDisplay().getJframe().addKeyListener(getKeyManager());
     }
@@ -325,7 +325,7 @@ public class Game implements Runnable, Constants {
             player.tick();
         }
         
-        if(isGameOver() && getKeyManager().isR() == true) {
+        if(getKeyManager().isR() == true) {
             setGameOver(false);
             restartGame();
             getKeyManager().setR(false);   
@@ -448,8 +448,17 @@ public class Game implements Runnable, Constants {
     private void saveGame() throws IOException {
                                                           
         PrintWriter fileOut = new PrintWriter(new FileWriter(lastSave));
-        fileOut.println("Nothing");
         
+        fileOut.println(player.getX());
+        fileOut.println(player.getY());
+        fileOut.println(player.getDeaths());
+        fileOut.println(shot.getX());
+        fileOut.println(shot.getY());
+        fileOut.println(shot.isCreated() ? 1 : 0);
+        fileOut.println(aliens.getDirection());
+        
+        aliens.save(fileOut);
+
         fileOut.close();
                 
     }
@@ -467,14 +476,28 @@ public class Game implements Runnable, Constants {
                       fileOut.close();
                       fileIn = new BufferedReader(new FileReader(lastSave));
               }
-              String dato = fileIn.readLine();
-              int num = Integer.parseInt(dato);
+
+              player.setX(Integer.parseInt(fileIn.readLine()));
+              player.setY(Integer.parseInt(fileIn.readLine()));
+              player.setDeaths(Integer.parseInt(fileIn.readLine()));
+              shot.setX(Integer.parseInt(fileIn.readLine()));
+              shot.setY(Integer.parseInt(fileIn.readLine()));
+              shot.setCreated(Integer.parseInt(fileIn.readLine()) == 1);
+              aliens.setDirection(Integer.parseInt(fileIn.readLine()));
               
-              
+              aliens.load(fileIn);
+
               fileIn.close();
     }
 
     private void restartGame() {
+        
+        
+        aliens = new Aliens();
+        player =  new Player(START_X, START_Y,PLAYER_WIDTH,PLAYER_HEIGHT, this, 2);
+        shot = new Shot(0,GROUND,SHOT_WIDTH,SHOT_HEIGHT, this,false);
+        
+        
 
     }
 

@@ -7,6 +7,9 @@ package videogame;
 
 import java.awt.Graphics;
 import java.awt.Rectangle;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Random;
@@ -22,7 +25,7 @@ public class Aliens implements Constants {
 
     public Aliens() {
         aliens = new ArrayList<Alien>();
-        direction = 1;
+        direction = -1;
 
         for (int i = 0; i < 4; i++) {
             for (int j = 0; j < 6; j++) {
@@ -31,7 +34,33 @@ public class Aliens implements Constants {
             }
         }
     }
+    public void save(PrintWriter pw) {
 
+        for (int i = 0; i < aliens.size(); i++) {
+            
+            pw.println(aliens.get(i).getX());
+            pw.println(aliens.get(i).getY());
+            pw.println(aliens.get(i).isDying() ? 1 : 0);
+            pw.println(aliens.get(i).getBomb().isCreated() ? 1 : 0);
+            pw.println(aliens.get(i).getBomb().getX());
+            pw.println(aliens.get(i).getBomb().getY());
+        }
+        
+    }
+    
+    public void load(BufferedReader br) throws IOException {
+
+        for (int i = 0; i < aliens.size(); i++) {
+
+            aliens.get(i).setX(Integer.parseInt(br.readLine()));
+            aliens.get(i).setY(Integer.parseInt(br.readLine()));
+            aliens.get(i).setDying(Integer.parseInt(br.readLine()) == 1);
+            aliens.get(i).getBomb().setCreated(Integer.parseInt(br.readLine()) == 1);
+            aliens.get(i).getBomb().setX(Integer.parseInt(br.readLine()));
+            aliens.get(i).getBomb().setY(Integer.parseInt(br.readLine()));
+        }
+        
+    }
     /**
      * To render the image of the player
      *
@@ -285,7 +314,6 @@ public class Aliens implements Constants {
             private int height;
             private boolean created;
             private int speed;
-            private boolean dropped;
 
             public Bomb(int x, int y, int width, int height) {
                 super(x, y);
@@ -293,16 +321,8 @@ public class Aliens implements Constants {
                 this.height = height;
                 this.created = false;
                 this.speed = BOMB_SPEED;
-                this.dropped = false;
             }
 
-            public boolean isDropped() {
-                return dropped;
-            }
-
-            public void setDropped(boolean dropped) {
-                this.dropped = dropped;
-            }
 
             public int getSpeed() {
                 return speed;
@@ -367,6 +387,7 @@ public class Aliens implements Constants {
                         setCreated(false);
                     }
                 }
+                
 
             }
 

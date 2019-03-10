@@ -22,6 +22,8 @@ public class Assets {
     public static SoundClip shoot;
     public static SoundClip theme;
     public static SoundClip laser;
+    public static SoundClip explosion_alien;
+    public static SoundClip explosion_player;
     
     public static void init() {
         alien = ImageLoader.loadImage("/images/alien.png");
@@ -31,6 +33,8 @@ public class Assets {
         death = new SoundClip("/sounds/death.wav"); 
         theme = new SoundClip("/sounds/theme_song.wav");
         laser = new SoundClip("/sounds/laser.wav");
+        explosion_alien = new SoundClip("/sounds/explosion_alien.wav");
+        explosion_player = new SoundClip("/sounds/explosion_player.wav");
     }
     
 }

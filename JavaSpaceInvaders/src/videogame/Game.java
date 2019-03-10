@@ -318,6 +318,7 @@ public class Game implements Runnable, Constants {
          
         // When the bomb hits the player, the game is over
         if (aliens.intersectaBomb(player)) {
+            Assets.explosion_player.play();
             setMessage("Game lost!");
             setGameOver(true);
             //Assets.theme.stop();
@@ -325,6 +326,7 @@ public class Game implements Runnable, Constants {
         
         // When the player's shot hits the alien, the alien dies
         if (aliens.intersectaShot(shot)) {
+            Assets.explosion_alien.play();
             shot.setCreated(false);
             shot.setX(player.getX());
             shot.setY(player.getY());
@@ -475,7 +477,10 @@ public class Game implements Runnable, Constants {
         stop();
     }
     
-    // Method to save the game
+    /**
+     * Method to save the game with the game's information in a file
+     * @throws IOException 
+     */
     private void saveGame() throws IOException {
                                                           
         PrintWriter fileOut = new PrintWriter(new FileWriter(lastSave));
@@ -494,7 +499,10 @@ public class Game implements Runnable, Constants {
                 
     }
     
-    // Method to load the game
+    /**
+     * Method to load the game with the game's information in a file
+     * @throws IOException 
+     */
     private void loadGame() throws IOException
     {
         BufferedReader fileIn;
@@ -521,7 +529,9 @@ public class Game implements Runnable, Constants {
               fileIn.close();
     }
 
-    // Method to restart the game
+    /**
+     * Method to restart the game
+     */
     private void restartGame() {
         aliens = new Aliens();
         player =  new Player(START_X, START_Y,PLAYER_WIDTH,PLAYER_HEIGHT, this, 2);

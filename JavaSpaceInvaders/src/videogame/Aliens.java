@@ -20,13 +20,14 @@ import java.util.Random;
  */
 public class Aliens implements Constants {
 
-    private ArrayList<Alien> aliens;
-    private int direction;
+    private ArrayList<Alien> aliens;    // Linked List for the aliens
+    private int direction;              // Direction of the aliens
 
     public Aliens() {
         aliens = new ArrayList<Alien>();
         direction = -1;
 
+        // Loops to create the aliens and add them to the linked list
         for (int i = 0; i < 4; i++) {
             for (int j = 0; j < 6; j++) {
                 Alien alien = new Alien(ALIEN_INIT_X + 18 * j, ALIEN_INIT_Y + 18 * i);
@@ -34,6 +35,11 @@ public class Aliens implements Constants {
             }
         }
     }
+    
+    /**
+     * To save the information of the aliens in a file
+     * @param pw 
+     */
     public void save(PrintWriter pw) {
 
         for (int i = 0; i < aliens.size(); i++) {
@@ -48,6 +54,11 @@ public class Aliens implements Constants {
         
     }
     
+    /**
+     * To load the information of the aliens from a file
+     * @param br
+     * @throws IOException 
+     */
     public void load(BufferedReader br) throws IOException {
 
         for (int i = 0; i < aliens.size(); i++) {
@@ -61,9 +72,9 @@ public class Aliens implements Constants {
         }
         
     }
+    
     /**
-     * To render the image of the player
-     *
+     * To render the image of the alien
      * @param g
      */
     public void render(Graphics g) {
@@ -73,19 +84,28 @@ public class Aliens implements Constants {
         }
     }
 
+    /**
+     * To get the direction of the alien
+     * @return direction
+     */
     public int getDirection() {
         return direction;
     }
 
+    /**
+     * To set the direction of the alien
+     * @param direction 
+     */
     public void setDirection(int direction) {
         this.direction = direction;
     }
 
     public void tick() {
 
+        // To move the aliens
         for (int i = 0; i < aliens.size(); i++) {
-
-             int x = aliens.get(i).getX();
+            int x = aliens.get(i).getX();
+            
             if (x >= BOARD_WIDTH - BORDER_RIGHT && getDirection() != -1) {
                 setDirection(-1);
                 Iterator i1 = aliens.iterator();
@@ -114,6 +134,11 @@ public class Aliens implements Constants {
 
     }
     
+    /**
+     * Method that returns if a bomb of the aliens hit the player
+     * @param obj
+     * @return true or false
+     */
     public boolean intersectaBomb(Player obj) {
             
             for(int i = 0; i < aliens.size(); i++)
@@ -123,45 +148,56 @@ public class Aliens implements Constants {
             }
             
             return false;
-        }
+    }
     
-        public boolean intersectaShot(Shot obj) {
-            
-            for(int i = 0; i < aliens.size(); i++)
-            {
-                if(aliens.get(i).intersectaShot(obj) && !aliens.get(i).isDying())
-                {
+    /**
+     * Method that returns if an alien got hit by the player's shot
+     * @param obj
+     * @return 
+     */
+    public boolean intersectaShot(Shot obj) {
+        for(int i = 0; i < aliens.size(); i++) {
+            if(aliens.get(i).intersectaShot(obj) && !aliens.get(i).isDying()) {
                  aliens.get(i).setDying(true);
                  return true;
-                }
-                    
             }
-            
-            return false;
-        }
-        public boolean reachesBottom() {
-            
-            for(int i = 0; i < aliens.size(); i++)
-            {
-                if(aliens.get(i).getY() > GROUND - ALIEN_HEIGHT && !aliens.get(i).isDying())
-                    return true;
                     
-            }
-            
-            return false;
         }
+            
+        return false;
+    }
+        
+    /**
+     * Method that returns if an alien reaches the bottom
+     * @return true or false
+     */
+    public boolean reachesBottom() { 
+        for(int i = 0; i < aliens.size(); i++){
+            if(aliens.get(i).getY() > GROUND - ALIEN_HEIGHT && !aliens.get(i).isDying()) {
+                return true;
+            }
+                    
+        }
+            
+        return false;
+    }
     
     
-
+    // Private class of the alien
     private class Alien extends Item {
 
         private int width;                  // the width of the player
         private int height;                 // the height of the player
-        private Game game;
-        private int velocity;               // variable for the velocity of the player
-        private Bomb bomb;
-        private boolean dying;
+        private Game game;                  // variable for the game
+        private int velocity;               // variable for the velocity of the alien
+        private Bomb bomb;                  // variable for the bomb
+        private boolean dying;              // variable for the status of the alien
 
+        /**
+         * Constructor of the alien
+         * @param x
+         * @param y 
+         */
         public Alien(int x, int y) {
             super(x, y);
             this.width = ALIEN_WIDTH;
@@ -209,7 +245,7 @@ public class Aliens implements Constants {
         }
 
         /**
-         * To get the velocity of the player
+         * To get the velocity of the alien
          *
          * @return velocity
          */
@@ -218,7 +254,7 @@ public class Aliens implements Constants {
         }
 
         /**
-         * To set the width of the window of the game
+         * To set the width of the window of the alien
          *
          * @param width
          */
@@ -227,7 +263,7 @@ public class Aliens implements Constants {
         }
 
         /**
-         * To set the height of the window of the game
+         * To set the height of the window of the alien
          *
          * @param height
          */
@@ -236,7 +272,7 @@ public class Aliens implements Constants {
         }
 
         /**
-         * To set the velocity of the player
+         * To set the velocity of the alien
          *
          * @param velocity
          */
@@ -244,16 +280,24 @@ public class Aliens implements Constants {
             this.velocity = velocity;
         }
 
+        /**
+         * To get the bomb
+         * @return return
+         */
         public Bomb getBomb() {
             return bomb;
         }
 
+        /**
+         * To set the bomb
+         * @param bomb 
+         */
         public void setBomb(Bomb bomb) {
             this.bomb = bomb;
         }
 
         /**
-         * To get the perimeter of the rectangle of the player's image
+         * To get the perimeter of the rectangle of the alien's image
          *
          * @return Rectangle
          */
@@ -262,7 +306,7 @@ public class Aliens implements Constants {
         }
 
         /**
-         * To determine if the object is intersecting with another object
+         * To determine if the alien intersects with the shot
          *
          * @param obj
          * @return Rectangle
@@ -271,31 +315,27 @@ public class Aliens implements Constants {
             return getPerimetro().intersects(obj.getPerimetro());
         }
         
-
-
         @Override
         public void tick() {
-            if(!isDying())
-            {
-            setX(getX() + getDirection());
+            if(!isDying()) {
+                setX(getX() + getDirection());
 
-            if (!bomb.isCreated()) {
+                if (!bomb.isCreated()) {
+                    int chance = (int) (Math.random() * 15);
 
-                int chance = (int) (Math.random() * 15);
-
-                if (chance == CHANCE) {
-                    bomb.setCreated(true);
-                    bomb.setX(getX());
-                    bomb.setY(getY());
+                    if (chance == CHANCE) {
+                        bomb.setCreated(true);
+                        bomb.setX(getX());
+                        bomb.setY(getY());
+                    }
                 }
-            }
             bomb.tick();
             }
             
         }
 
         /**
-         * To render the image of the player
+         * To render the image of the alien
          *
          * @param g
          */
@@ -308,6 +348,7 @@ public class Aliens implements Constants {
             }
         }
 
+        // Class for the bomb
         private class Bomb extends Item {
 
             private int width;
@@ -315,6 +356,13 @@ public class Aliens implements Constants {
             private boolean created;
             private int speed;
 
+            /**
+             * Constructor of the bomb
+             * @param x
+             * @param y
+             * @param width
+             * @param height 
+             */
             public Bomb(int x, int y, int width, int height) {
                 super(x, y);
                 this.width = width;
@@ -323,41 +371,72 @@ public class Aliens implements Constants {
                 this.speed = BOMB_SPEED;
             }
 
-
+            /**
+             * To get the speed of the bomb
+             * @return speed
+             */
             public int getSpeed() {
                 return speed;
             }
 
+            /**
+             * To set the speed of the bomb
+             * @param speed 
+             */
             public void setSpeed(int speed) {
                 this.speed = speed;
             }
 
+            /**
+             * To get the width of the bomb
+             * @return width
+             */
             public int getWidth() {
                 return width;
             }
 
+            /**
+             * To set the width of the bomb
+             * @param width 
+             */
             public void setWidth(int width) {
                 this.width = width;
             }
 
+            /**
+             * To get the height of the bomb
+             * @return 
+             */
             public int getHeight() {
                 return height;
             }
 
+            /**
+             * To set the height of the bomb
+             * @param height 
+             */
             public void setHeight(int height) {
                 this.height = height;
             }
 
+            /**
+             * To get the status of the bomb whether it is created or not
+             * @return 
+             */
             public boolean isCreated() {
                 return created;
             }
 
+            /**
+             * To set the status of the bomb whether it is created or not
+             * @param created 
+             */
             public void setCreated(boolean created) {
                 this.created = created;
             }
 
             /**
-             * To get the perimeter of the rectangle of the ball
+             * To get the perimeter of the rectangle of the bomb
              *
              * @return Rectangle
              */
@@ -366,7 +445,7 @@ public class Aliens implements Constants {
             }
 
             /**
-             * To determine if the object is intersecting with the paddle
+             * To determine if the bomb is intersecting with the player
              *
              * @param obj
              * @return Rectangle
@@ -378,6 +457,7 @@ public class Aliens implements Constants {
             @Override
             public void tick() {
 
+                // For the bomb to move down
                 if (isCreated()) {
                     
                     setY(getY() + BOMB_SPEED);

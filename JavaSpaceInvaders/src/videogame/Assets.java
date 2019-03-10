@@ -1,4 +1,4 @@
-/*
+ /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
@@ -21,6 +21,7 @@ public class Assets {
     public static SoundClip explosion;
     public static SoundClip shoot;
     public static SoundClip theme;
+    public static SoundClip laser;
     
     public static void init() {
         alien = ImageLoader.loadImage("/images/alien.png");
@@ -29,6 +30,7 @@ public class Assets {
         shot = ImageLoader.loadImage("/images/shot.png");
         death = new SoundClip("/sounds/death.wav"); 
         theme = new SoundClip("/sounds/theme_song.wav");
+        laser = new SoundClip("/sounds/laser.wav");
     }
     
 }

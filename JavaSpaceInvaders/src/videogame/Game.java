@@ -38,20 +38,20 @@ public class Game implements Runnable, Constants {
     private KeyManager keyManager;      // variable for the key manager
     
     
-    private Player player;              // variable for the paddle
-    private Aliens aliens;   // linked list of the aliens of the game
-    private Shot shot;
+    private Player player;              // variable for the player
+    private Aliens aliens;              // linked list of the aliens of the game
+    private Shot shot;                  // variable for the shot of the player
     
     
     private boolean gameOver;           // to determine if the game is over
     private boolean paused;             // to determine if the game is paused
-    private boolean start;             // to determine if the game is paused
+    private boolean start;              // to determine if the game is paused
         
-    private String lastSave;    //Nombre del archivo.
-    private String message;    //Nombre del archivo.
+    private String lastSave;            // nombre del archivo.
+    private String message;             // nombre del archivo.
         
     /**
-     * To create game with title, width, height and status of running
+     * To create game with its attributes
      * @param title
      * @param width
      * @param height 
@@ -69,10 +69,18 @@ public class Game implements Runnable, Constants {
         this.message = "";
     }
 
+    /**
+     * Returns a message
+     * @return message
+     */
     public String getMessage() {
         return message;
     }
 
+    /**
+     * Sets a message
+     * @param message 
+     */
     public void setMessage(String message) {
         this.message = message;
     }
@@ -125,10 +133,18 @@ public class Game implements Runnable, Constants {
         this.gameOver = gameOver;
     }
 
+    /**
+     * To know if the game started
+     * @return start
+     */
     public boolean isStart() {
         return start;
     }
 
+    /**
+     * To set if the game started
+     * @param start 
+     */
     public void setStart(boolean start) {
         this.start = start;
     }
@@ -199,7 +215,7 @@ public class Game implements Runnable, Constants {
 
     /**
      * Returns the thread
-     * @return 
+     * @return thread
      */
     public Thread getThread() {
         return this.thread;
@@ -255,6 +271,10 @@ public class Game implements Runnable, Constants {
         getDisplay().getJframe().addKeyListener(getKeyManager());
     }
     
+    /**
+     * To get the key manager
+     * @return 
+     */
     public KeyManager getKeyManager() {
         return keyManager;
     }
@@ -263,39 +283,47 @@ public class Game implements Runnable, Constants {
         
         keyManager.tick();
         
+        // To pause the game
         if(getKeyManager().isP() == true) {
             setMessage("Paused!");
             setPaused(!isPaused());
             getKeyManager().setP(false);
         }
+        
+        // For the player to shoot only if a shot wasn't already created
         if(getKeyManager().isSPACE() == true){
             
            if(!shot.isCreated())
            {
                shot = new Shot(player.getX(),player.getY(),SHOT_HEIGHT,SHOT_WIDTH,this,true);
+               Assets.laser.play();
            }
 
            getKeyManager().setSPACE(false);
         }
         
+        // To save the game
         if(getKeyManager().isG() == true)
         {
             saveGame();
             getKeyManager().setG(false);
         }
+        
+        // To load the game
         if(getKeyManager().isC() == true)
         {
             loadGame();
             getKeyManager().setC(false);
         }
          
-        //GameOver
+        // When the bomb hits the player, the game is over
         if (aliens.intersectaBomb(player)) {
             setMessage("Game lost!");
             setGameOver(true);
             //Assets.theme.stop();
         }
         
+        // When the player's shot hits the alien, the alien dies
         if (aliens.intersectaShot(shot)) {
             shot.setCreated(false);
             shot.setX(player.getX());
@@ -304,20 +332,20 @@ public class Game implements Runnable, Constants {
             //Assets.theme.stop();
         }
         
+        // The game is over when the aliens reach the bottom part
         if (aliens.reachesBottom()) {
                     setGameOver(true);
                     message = "Invasion!";
         }
 
-        
+        // The player win when he has killed all the aliens
         if(player.getDeaths() == NUMBER_OF_ALIENS_TO_DESTROY)
         {
             setMessage("Game won!");
             setGameOver(true);   
         }
         
-        
-        //running
+        // Running, while the game is not over and not paused
         if(!isGameOver() && !isPaused()){
     
             aliens.tick();
@@ -325,6 +353,7 @@ public class Game implements Runnable, Constants {
             player.tick();
         }
         
+        // To restart the game after losing
         if(getKeyManager().isR() == true) {
             setGameOver(false);
             restartGame();
@@ -354,7 +383,7 @@ public class Game implements Runnable, Constants {
             g.setColor(Color.GREEN);
             g.drawLine(0, GROUND, BOARD_WIDTH, GROUND);
             
-            
+            // To render the player, the enemies and the shot of the player
             if(!isGameOver()) {
                 
                 player.render(g);
@@ -445,6 +474,8 @@ public class Game implements Runnable, Constants {
         }
         stop();
     }
+    
+    // Method to save the game
     private void saveGame() throws IOException {
                                                           
         PrintWriter fileOut = new PrintWriter(new FileWriter(lastSave));
@@ -463,7 +494,7 @@ public class Game implements Runnable, Constants {
                 
     }
     
-    
+    // Method to load the game
     private void loadGame() throws IOException
     {
         BufferedReader fileIn;
@@ -490,15 +521,11 @@ public class Game implements Runnable, Constants {
               fileIn.close();
     }
 
+    // Method to restart the game
     private void restartGame() {
-        
-        
         aliens = new Aliens();
         player =  new Player(START_X, START_Y,PLAYER_WIDTH,PLAYER_HEIGHT, this, 2);
         shot = new Shot(0,GROUND,SHOT_WIDTH,SHOT_HEIGHT, this,false);
-        
-        
-
     }
 
 }
